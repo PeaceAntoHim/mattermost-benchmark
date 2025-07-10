@@ -85,6 +85,8 @@ GOMAXPROCS: "2"
 **Cron Scheduling Example:**
 
 ```
+crontab -e
+
 0 3 * * * /mattermost/backups/backup_script.sh >> /var/log/mattermost_backup.log 2>&1
 ```
 
