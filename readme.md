@@ -115,7 +115,7 @@ This logic ensures long-term data retention while preserving storage efficiency.
 
 ---
 
-## 🧪 Stress Testing with K6
+## Stress Testing with K6
 
 K6 scenarios created to simulate user actions:
 
