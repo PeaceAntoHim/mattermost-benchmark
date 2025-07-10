@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test:benchmark": "k6 run --out json=./k6/results/benchmark.json ./k6/mattermost-benchmark.test.js",
+    "test:scenario-a": "k6 run --out json=./k6/results/scenario-a.json ./k6/scenario-a-login-create-channel.js",
+    "test:scenario-b": "k6 run --out json=./k6/results/scenario-b.json ./k6/scenario-b-login-post-message.js",
+    "test:scenario-c": "k6 run --out json=./k6/results/scenario-c.json ./k6/scenario-c-degraded-db.js",
+    "test:all": "npm run test:benchmark && npm run test:scenario-a && npm run test:scenario-b && npm run test:scenario-c"
   },
   "private": true
 }
