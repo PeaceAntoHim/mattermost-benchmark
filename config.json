@@ -1,0 +1,40 @@
+{
+  "LogSettings": {
+    "EnableConsole": true,
+    "ConsoleLevel": "INFO",
+    "EnableFile": true,
+    "FileLevel": "DEBUG",
+    "FileLocation": "/mattermost/logs/mattermost.log",
+    "EnableDiagnostics": true
+  },
+  "MetricsSettings": {
+    "Enable": true,
+    "BlockProfileRate": 1,
+    "ListenAddress": ":8067"
+  },
+  "SqlSettings": {
+    "MaxOpenConns": 80,
+    "MaxIdleConns": 40,
+    "ConnMaxLifetimeMilliseconds": 300000,
+    "DriverName": "postgres",
+    "DataSource": "postgres://mmuser:mmuserpass@pgbouncer:6432/mattermost?sslmode=disable&connect_timeout=10"
+  },
+  "PluginSettings": {
+    "Enable": true,
+    "EnableUploads": false,
+    "AllowInsecureDownloadUrl": false,
+    "EnableMarketplace": true,
+    "MarketplaceUrl": "https://api.integrations.mattermost.com",
+    "Directory": "./plugins"
+  },
+  "ServiceSettings": {
+    "SiteURL": "http://localhost",
+    "ListenAddress": ":8065",
+    "Forward80To443": false,
+    "ReadTimeout": 300,
+    "WriteTimeout": 300,
+    "MaximumLoginAttempts": 10,
+    "WebsocketSecurePort": 443,
+    "WebsocketPort": 80
+  }
+}

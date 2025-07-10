@@ -1,0 +1,25 @@
+global:
+  scrape_interval: 60s
+  evaluation_interval: 60s
+  external_labels:
+    monitor: 'mattermost-monitor'
+
+rule_files:
+ - "alert.rules"
+ - "recording.rules"
+
+scrape_configs:
+  - job_name: 'mattermost'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['mattermost-benchmark-mattermost-1:8065', 'mattermost-benchmark-mattermost-2:8065', 'mattermost-benchmark-mattermost-3:8065']
+        labels:
+          app: mattermost
+
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: [ 'cadvisor:8080' ]

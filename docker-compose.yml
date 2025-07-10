@@ -1,0 +1,145 @@
+services:
+  db:
+    image: postgres:17
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: mmuser
+      POSTGRES_PASSWORD: mmuserpass
+      POSTGRES_DB: mattermost
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mmuser"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgbouncer:
+    image: edoburu/pgbouncer
+    container_name: pgbouncer
+    environment:
+      DB_USER: mmuser
+      DB_PASSWORD: mmuserpass
+      DB_NAME: mattermost
+      DB_HOST: db
+      DB_PORT: 5432
+      AUTH_TYPE: scram-sha-256
+      POOL_MODE: session
+      MAX_CLIENT_CONN: 200
+      DEFAULT_POOL_SIZE: 50
+      LISTEN_PORT: 6432
+    ports:
+      - "6432:6432"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "db", "-p", "5432", "-U", "mmuser"]
+
+  mattermost:
+    image: mattermost/mattermost-team-edition
+    platform: linux/amd64
+    environment:
+      MM_SQLSETTINGS_DRIVERNAME: postgres
+      MM_SQLSETTINGS_DATASOURCE: "postgres://mmuser:mmuserpass@pgbouncer:6432/mattermost?sslmode=disable&connect_timeout=10"
+      MM_LOGSETTINGS_ENABLEDEBUG: "true"
+      MM_LOGSETTINGS_FILELOCATION: "/mattermost/logs/mattermost.log"
+      MM_LOGSETTINGS_CONSOLELEVEL: "DEBUG"
+      MM_LOGSETTINGS_FILELEVEL: "DEBUG"
+      MM_PLUGINSETTINGS_ENABLEUPLOADS: "false"
+      MM_SERVICESETTINGS_FORWARDFROMSERVER: "true"
+      MM_METRICSSETTINGS_ENABLE: "true"
+      MM_METRICSSETTINGS_LISTENADDRESS: ":8067"
+      MM_SERVICESETTINGS_SITEURL: "http://localhost"
+      MM_DIAGNOSTICSETTINGS_ENABLE: "true"
+      MM_METRICSSETTINGS_BLOCKPROFILES: "false"
+      MM_SQLSETTINGS_CONNMAXLIFETIME: "300000"
+      MM_SQLSETTINGS_MAXIDLECONNS: "10"
+      MM_SQLSETTINGS_MAXOPENCONNS: "30"
+      GOMAXPROCS: "2"
+    volumes:
+      - ./mattermost_data/logs:/mattermost/logs
+      - ./mattermost_data:/mattermost/data
+    depends_on:
+      - pgbouncer
+    restart: unless-stopped
+    mem_limit: 4g
+    cpus: "2.0"
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - mattermost
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana_data:/var/lib/grafana
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    command: -config.file=/etc/promtail/promtail.yaml
+    volumes:
+      - /var/log:/var/log
+      - /etc/machine-id:/etc/machine-id:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./promtail-config.yaml:/etc/promtail/promtail.yaml
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:2.9.2
+    container_name: loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/loki-config.yaml
+    volumes:
+      - ./loki-config.yaml:/etc/loki/loki-config.yaml
+      - ./loki_data:/loki
+      - ./loki_data/wal:/loki/wal
+    restart: unless-stopped
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    restart: unless-stopped
+
+volumes:
+  db_data:
+  mattermost_data:
+  grafana_data:

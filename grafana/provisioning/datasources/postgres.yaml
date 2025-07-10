@@ -1,0 +1,19 @@
+apiVersion: 1
+
+datasources:
+  - name: PostgreSQL
+    type: postgres
+    access: proxy
+    isDefault: false
+    database: mattermost
+    user: mmuser
+    secureJsonData:
+      password: mmuserpass
+    jsonData:
+      sslmode: disable
+      postgresVersion: 1200
+      timeInterval: "1s"
+      maxOpenConns: 100
+      maxIdleConns: 10
+      connMaxLifetime: 14400
+    url: db:5432
