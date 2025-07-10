@@ -256,7 +256,7 @@ This project includes realistic **load simulation scenarios** using [k6.io](http
   "test:scenario-a": "k6 run --out json=./k6/results/scenario-a.json ./k6/scenario-a-login-create-channel.js",
   "test:scenario-b": "k6 run --out json=./k6/results/scenario-b.json ./k6/scenario-b-login-post-message.js",
   "test:scenario-c": "k6 run --out json=./k6/results/scenario-c.json ./k6/scenario-c-degraded-db.js",
-  "test:all": "npm run test:benchmark && npm run test:scenario-a && npm run test:scenario-b && npm run test:scenario-c"
+  "test:all": "bash -c 'npm run test:benchmark; npm run test:scenario-a; npm run test:scenario-b; npm run test:scenario-c'"
 }
 ```
 
