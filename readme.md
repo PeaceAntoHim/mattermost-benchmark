@@ -359,6 +359,7 @@ WHERE created_at < NOW() - INTERVAL '2 years';
 ├── package-lock.json
 ├── archived_messages.sql
 ├── config.json
+├── sample_mattermost.log
 └── readme.md
 ```
 
