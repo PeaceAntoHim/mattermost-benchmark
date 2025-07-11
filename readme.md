@@ -178,30 +178,6 @@ Action Taken:
 
 ---
 
-## File Struktur
-
-```
-├── docker-compose.yml
-├── config.json
-├── nginx.conf
-├── prometheus.yml
-├── grafana/
-├── loki-config.yaml
-├── promtail-config.yaml
-├── backup_script.sh
-├── restart_mattermost.sh
-├── mattermost_data/
-├── grafana_data/
-├── db_data/
-├── k6/
-│   ├── scenario-a-login-create-channel.js
-│   ├── scenario-b-login-post-message.js
-│   ├── scenario-c-degraded-db.js
-│   ├── mattermost-benchmark.test.js
-│   └── results/
-```
-
----
 
 ## Summary & Conclusion
 
@@ -347,15 +323,6 @@ WHERE created_at < NOW() - INTERVAL '2 years';
 * Load-balanced Mattermost cluster with `least_conn`
 * K6 test suite to validate real-world usage scenarios
 
----
-
-## Result
-
-* **System is stable with 3 Mattermost replicas** behind Nginx
-* **PgBouncer handles pooling efficiently** with correct tuning
-* **Prometheus & Grafana provide full visibility**
-* **Stress tests pass without timeouts or saturation**
-* Ready for production or scale-up simulation
 
 ---
 
@@ -365,6 +332,11 @@ WHERE created_at < NOW() - INTERVAL '2 years';
 .
 ├── docker-compose.yml
 ├── nginx.conf
+├── backups/mattermost_20250711_0051*
+├── grafana/
+│   ├── provisioning/datasources/loki.yaml
+│   ├── provisioning/datasources/postgres.yaml
+│   └── provisioning/datasources/prometheus.yaml
 ├── prometheus.yml
 ├── loki-config.yaml
 ├── promtail-config.yaml
@@ -373,13 +345,21 @@ WHERE created_at < NOW() - INTERVAL '2 years';
 ├── db_data/
 ├── backups/
 ├── k6/
+│   ├── results/
 │   ├── mattermost-benchmark.test.js
 │   ├── scenario-a-login-create-channel.js
 │   ├── scenario-b-login-post-message.js
-│   └── scenario-c-degraded-db.js
-├── scripts/
-│   └── backup_script.sh
-└── README.md
+│   ├── scenario-c-degraded-db.js
+│   └── user.json
+├── .gitignore
+├── Dockerfile
+├── backup_script.sh
+├── restart_mattermost.sh
+├── package.json
+├── package-lock.json
+├── archived_messages.sql
+├── config.json
+└── readme.md
 ```
 
 ---
@@ -398,6 +378,11 @@ WHERE created_at < NOW() - INTERVAL '2 years';
 * Stable Mattermost performance with 3 containers running concurrently.
 * Average CPU usage lowered by \~40%.
 * No crash observed during k6 benchmarking under expected load.
+* **System is stable with 3 Mattermost replicas** behind Nginx
+* **PgBouncer handles pooling efficiently** with correct tuning
+* **Prometheus & Grafana provide full visibility**
+* **Stress tests pass without timeouts or saturation**
+* Ready for production or scale-up simulation
 
 ---
 
